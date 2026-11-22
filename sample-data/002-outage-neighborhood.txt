@@ -1,0 +1,6 @@
+Caller: Hello, this is Marcus Bell. Our whole street has no service since about six this morning. The connection went down and everything is offline.
+Agent: I am sorry, Marcus. We do have an outage reported in your area.
+Caller: I work from home and I cannot work at all while this is down. I am losing money every hour. This needs to be fixed immediately, it is urgent.
+Agent: A crew is already assigned. The current estimate is service back by early afternoon.
+Caller: That is awful. This is the third outage this month and it is unacceptable for the price we pay.
+Agent: I understand. I will add your address to the priority callback list so you hear as soon as it is restored.

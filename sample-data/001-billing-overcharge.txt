@@ -1,0 +1,5 @@
+Caller: Hi, this is Dana Whitfield. I am looking at my bill for this month and I have been charged twice for the same service. The invoice shows two charges of forty nine dollars on the same day.
+Agent: I am sorry about that. Let me pull up the billing record.
+Caller: This is the second time I have been overcharged this year and it is really frustrating. I want a refund for the extra charge, not a credit on the next bill.
+Agent: Understood. I can see the duplicate charge. I will start the refund today and it should reach your bank within five working days.
+Caller: Please send me an email confirming the refund amount.

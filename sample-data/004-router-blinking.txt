@@ -1,0 +1,6 @@
+Caller: Hello, this is Tom Ellery. My router has a red light blinking on it since yesterday and the internet is not working in the back rooms of the house.
+Agent: A blinking red light usually means the router cannot reach the network. Have you restarted the device?
+Caller: I restarted it twice. It works for ten minutes, then the light starts blinking again and the error shows on the screen.
+Agent: That points to a line fault rather than the device itself. I will book an engineer visit for Thursday morning.
+Caller: Thursday is fine. Do I need to be home?
+Agent: Yes, someone over eighteen needs to be there. The visit takes about an hour.

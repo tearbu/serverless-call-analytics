@@ -1,0 +1,146 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Serverless support call analytics. Transcripts land in S3, an ingest
+  function stores them in DynamoDB, an analyze function classifies them
+  (triggered by DynamoDB Streams), and a query function serves summaries
+  and aggregate stats through API Gateway.
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 256
+
+Resources:
+  CallsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-transcripts"
+
+  CallsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-calls"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: call_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: call_id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+  IngestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-ingest"
+      CodeUri: src/
+      Handler: ingest.lambda_handler
+      Description: Reads new transcripts from S3 and stores raw call records.
+      Environment:
+        Variables:
+          CALLS_TABLE: !Ref CallsTable
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: !Sub "${CallsBucket.Arn}/*"
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+              Resource: !GetAtt CallsTable.Arn
+      Events:
+        NewTranscript:
+          Type: S3
+          Properties:
+            Bucket: !Ref CallsBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .txt
+
+  AnalyzeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-analyze"
+      CodeUri: src/
+      Handler: analyze.lambda_handler
+      Description: Classifies new call records and redacts PII before storage settles.
+      Environment:
+        Variables:
+          CALLS_TABLE: !Ref CallsTable
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource: !GetAtt CallsTable.Arn
+            - Effect: Allow
+              Action:
+                - dynamodb:GetRecords
+                - dynamodb:GetShardIterator
+                - dynamodb:DescribeStream
+                - dynamodb:ListStreams
+              Resource: !GetAtt CallsTable.StreamArn
+      Events:
+        NewCallRecord:
+          Type: DynamoDB
+          Properties:
+            Table: !Ref CallsTable
+            Stream: !GetAtt CallsTable.StreamArn
+            StartingPosition: LATEST
+            FilterCriteria:
+              Filters:
+                - Pattern: '{"eventName": ["INSERT"]}'
+
+  QueryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-query"
+      CodeUri: src/
+      Handler: query.lambda_handler
+      Description: Read-only API for call summaries and aggregate stats.
+      Environment:
+        Variables:
+          CALLS_TABLE: !Ref CallsTable
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:Scan
+              Resource: !GetAtt CallsTable.Arn
+      Events:
+        ListCalls:
+          Type: Api
+          Properties:
+            Path: /calls
+            Method: get
+        GetCall:
+          Type: Api
+          Properties:
+            Path: /calls/{callId}
+            Method: get
+        GetStats:
+          Type: Api
+          Properties:
+            Path: /stats
+            Method: get
+
+Outputs:
+  ApiUrl:
+    Description: Base URL of the query API
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  BucketName:
+    Description: Bucket that receives call transcripts
+    Value: !Ref CallsBucket
+  TableName:
+    Description: DynamoDB table holding call records
+    Value: !Ref CallsTable

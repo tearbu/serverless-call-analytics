@@ -1,0 +1,6 @@
+Caller: Hi, my name is Priya Nair. I am locked out of my account. I tried to log in this morning and it says my password is wrong, even though I am sure I typed it correctly.
+Agent: Let me check the account status for you.
+Caller: After a few tries it said the account is locked. I also never got the two-factor code on my phone.
+Agent: The lock clears after thirty minutes, or I can reset my records here and send you a link to set a new password and confirm your username.
+Caller: Please send the link. I will set a new password right away.
+Agent: Done. The link is valid for one hour.

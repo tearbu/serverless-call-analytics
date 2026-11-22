@@ -1,0 +1,5 @@
+Caller: Hi, this is Leo Sandoval, following up on my case from Monday. The firmware update failed twice on my modem and the screen kept freezing.
+Agent: I see the case, Leo. We pushed a corrected update last night.
+Caller: That is why I am calling. The modem updated overnight, the freezes are gone, and the speeds are back to normal. Everything is resolved.
+Agent: Excellent. I will close the case on my side.
+Caller: Thank you, the engineer who called me back was very helpful. I appreciate the quick follow-up.
