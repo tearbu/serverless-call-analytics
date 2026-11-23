@@ -187,8 +187,14 @@ GET https://pb6eii1y8k.execute-api.us-east-1.amazonaws.com/Prod/calls/stats
 {"total_calls":7,"by_category":{"access":1,"billing":2,"other":1,"technical":2,"outage":1},"by_sentiment":{"neutral":2,"negative":3,"positive":2},"by_urgency":{"low":4,"medium":2,"high":1},"pii_flagged_count":1}
 ```
 
-`GET /calls` on the same base URL returns the analyzed records. The
-stack was left running with only the fictional sample data in it.
+`GET /calls` on the same base URL returned the analyzed records.
+The stack held only the fictional sample data. Later the same day,
+at the owner's direction, it was torn down to avoid ongoing
+charges: the transcripts bucket was emptied and removed with the
+stack, and the separate artifacts bucket was emptied and deleted.
+The API endpoint above is no longer active. The outputs and the
+response reproduced here are the record of that run. To run it
+again, use the commands in the Deploying section below.
 
 ## Deploying to AWS
 
@@ -224,11 +230,15 @@ What this project shows, in practical terms:
 
 Honest limits:
 
-- **Deployed and verified live on 23 November 2026 in us-east-1.**
-  The pipeline ran end to end on real AWS services with the seven
-  fictional transcripts, and the API answers at the URL in the Output
-  section. The deployment also exposed two defects in the template
-  as first published: a DynamoDB stream event property the SAM
+- **Deployed and verified live on 23 November 2026 in us-east-1,
+  then torn down the same day.** The pipeline ran end to end on real
+  AWS services with the seven fictional transcripts, and the API
+  answered at the URL in the Output section during that run. At the
+  owner's direction the stack was deleted the same day to avoid
+  ongoing charges, so nothing from this project is currently
+  running; the outputs recorded in the Output section are the
+  evidence of the run. The deployment also exposed two defects in
+  the template as first published: a DynamoDB stream event property the SAM
   transform rejects, and an IAM policy reference that created a
   circular dependency. Both are fixed in the template in this repo,
   and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) records the errors and

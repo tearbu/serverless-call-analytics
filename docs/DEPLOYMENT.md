@@ -17,8 +17,9 @@ reproduced below are the real command results from that run.
 - Date: 23 November 2026. Stack creation started 09:10:15 EST.
 - Region: us-east-1.
 - Account: 762103021017.
-- Stack: serverless-call-analytics, status CREATE_COMPLETE, left
-  running at the end of the session.
+- Stack: serverless-call-analytics, reached CREATE_COMPLETE, ran
+  for the verification below, and was deleted the same day (see
+  Teardown at the end of this document).
 - Deploy path: clone this repo in AWS CloudShell, then
   `aws cloudformation package` and `aws cloudformation deploy`.
 
@@ -203,23 +204,39 @@ Response body:
 ```
 
 The numbers match the table scan exactly. `GET /calls` on the same
-base URL also returns the analyzed records.
+base URL also returned the analyzed records.
 
-## Current state and teardown
+## Teardown
 
-The stack was left running at the end of the session: bucket, table,
-three functions, and the API are live in us-east-1 under the account
-above, holding only the seven fictional sample transcripts.
+The stack ran for the verification above and was then deleted on
+the same day, 23 November 2026, at the owner's direction, so that
+nothing from this project keeps billing.
 
-To remove everything the stack created:
+The deletion steps, in order:
 
-```bash
-aws cloudformation delete-stack --stack-name serverless-call-analytics
-```
+1. Emptied the transcripts bucket (the seven sample files). The
+   bucket itself was a stack resource and was removed with the
+   stack.
+2. Deleted the stack:
 
-The artifacts bucket from step 4 is not part of the stack. Delete it
-separately once the packaged template stored in it is no longer
-needed.
+   ```bash
+   aws cloudformation delete-stack --stack-name serverless-call-analytics
+   ```
+
+   After the delete completed, `aws cloudformation describe-stacks`
+   returned "Stack with id serverless-call-analytics does not
+   exist", which is the confirmation that the stack, the table, the
+   three functions, and the API are gone.
+3. Emptied and deleted the artifacts bucket from step 4,
+   serverless-call-analytics-artifacts-762103021017. That bucket was
+   created by hand and was never part of the stack, so it had to be
+   removed separately.
+
+Final checks in us-east-1 show no Lambda functions, no DynamoDB
+tables, and no REST APIs left from this project. The API URL
+recorded in step 8 no longer responds. Everything in this document
+above the teardown is the record of the run as it happened; to run
+it again, repeat the steps from the top.
 
 ## What this run changed in the repo
 
