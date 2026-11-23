@@ -148,20 +148,64 @@ all five resources with the right types, the table on-demand with a
 NEW_IMAGE stream, and the IAM action lists per function, including
 that the query function is read-only. It passed. What it does not
 do: it is not `sam validate` and not a deployment, so CloudFormation
-could still reject something this check cannot see.
+could still reject something this check cannot see. The live run
+below proved that warning right, twice.
+
+### Live deployment
+
+On 23 November 2026 this project was deployed to a real AWS account
+and run end to end. Region us-east-1, stack
+serverless-call-analytics, status CREATE_COMPLETE, deployed from a
+CloudShell clone of this repo with `aws cloudformation package` and
+`aws cloudformation deploy`. The full step-by-step record, including
+two failed attempts and the template defects behind them, is in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+Stack outputs:
+
+| Output | Value |
+| --- | --- |
+| BucketName | serverless-call-analytics-transcripts |
+| TableName | serverless-call-analytics-calls |
+| ApiUrl | https://pb6eii1y8k.execute-api.us-east-1.amazonaws.com/Prod |
+
+All seven sample transcripts were uploaded to the bucket. The S3
+event triggered ingest and the DynamoDB stream triggered analyze,
+with no manual invocations. A scan of the table showed 7 items, all
+analyzed: billing 2, technical 2, access 1, outage 1, other 1;
+sentiment negative 3, neutral 2, positive 2; urgency high 1, medium
+2, low 4; one call with PII flagged and redacted (transcript 006,
+card, ssn, phone, email). The same numbers as the local run above.
+
+The stats endpoint answered live:
+
+```
+GET https://pb6eii1y8k.execute-api.us-east-1.amazonaws.com/Prod/calls/stats
+```
+
+```json
+{"total_calls":7,"by_category":{"access":1,"billing":2,"other":1,"technical":2,"outage":1},"by_sentiment":{"neutral":2,"negative":3,"positive":2},"by_urgency":{"low":4,"medium":2,"high":1},"pii_flagged_count":1}
+```
+
+`GET /calls` on the same base URL returns the analyzed records. The
+stack was left running with only the fictional sample data in it.
 
 ## Deploying to AWS
 
-The template is the path to a live deployment:
+The deployment above used the CloudFormation commands from
+CloudShell, recorded step by step in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md):
 
 ```bash
-sam build
-sam deploy --guided
+aws cloudformation package --template-file template.yaml \
+  --s3-bucket <artifacts-bucket> --output-template-file packaged.yaml
+aws cloudformation deploy --template-file packaged.yaml \
+  --stack-name serverless-call-analytics --capabilities CAPABILITY_IAM
 ```
 
 After deployment, upload a transcript to the bucket from the stack
 outputs and read the results at the API URL from the same outputs
-(GET /calls and GET /stats).
+(GET /calls and GET /calls/stats).
 
 ## Worth
 
@@ -180,11 +224,16 @@ What this project shows, in practical terms:
 
 Honest limits:
 
-- **This has not been deployed to a live AWS account.** The pipeline
-  is verified through the local simulation with fictional data, and
-  the SAM template is verified structurally by the check above. The
-  deploy commands are the intended path, not a record of a
-  deployment that happened.
+- **Deployed and verified live on 23 November 2026 in us-east-1.**
+  The pipeline ran end to end on real AWS services with the seven
+  fictional transcripts, and the API answers at the URL in the Output
+  section. The deployment also exposed two defects in the template
+  as first published: a DynamoDB stream event property the SAM
+  transform rejects, and an IAM policy reference that created a
+  circular dependency. Both are fixed in the template in this repo,
+  and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) records the errors and
+  the fixes. The local structural check passed on the broken
+  template; it cannot see either class of error.
 - **The analysis step in this version is a deterministic rule-based
   analyzer**, not a managed AI service. Keyword scoring misses
   sarcasm, context, and phrasing outside its word lists. The Bedrock
@@ -205,6 +254,7 @@ template.yaml   AWS SAM template for the full stack
 run_demo.py     the local end to end run
 validate_template.py   structural check of the SAM template
 ARCHITECTURE.md flow, components, and decisions in full
+docs/           DEPLOYMENT.md, the step-by-step live deployment record
 ```
 
 ## License

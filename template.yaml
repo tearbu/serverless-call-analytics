@@ -47,7 +47,7 @@ Resources:
             - Effect: Allow
               Action:
                 - s3:GetObject
-              Resource: !Sub "${CallsBucket.Arn}/*"
+              Resource: !Sub "arn:${AWS::Partition}:s3:::${AWS::StackName}-transcripts/*"
             - Effect: Allow
               Action:
                 - dynamodb:PutItem
@@ -93,7 +93,6 @@ Resources:
         NewCallRecord:
           Type: DynamoDB
           Properties:
-            Table: !Ref CallsTable
             Stream: !GetAtt CallsTable.StreamArn
             StartingPosition: LATEST
             FilterCriteria:
