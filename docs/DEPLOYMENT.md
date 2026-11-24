@@ -7,9 +7,9 @@ Both defects are fixed in the `template.yaml` now in this repo, so
 the template here is the one that deployed, not the one that was
 first published.
 
-A note on evidence: this document has no screenshots. Each console
-stage (the stack, the bucket, the functions, the table items) was
-visually verified in the AWS console during the run. The outputs
+A note on evidence: this document has no screenshots. I visually
+verified each console stage (the stack, the bucket, the functions,
+the table items) in the AWS console during the run. The outputs
 reproduced below are the real command results from that run.
 
 ## Deployment facts
@@ -18,7 +18,7 @@ reproduced below are the real command results from that run.
 - Region: us-east-1.
 - Account: 762103021017.
 - Stack: serverless-call-analytics, reached CREATE_COMPLETE, ran
-  for the verification below, and was deleted the same day (see
+  for the verification below, and I deleted it the same day (see
   Teardown at the end of this document).
 - Deploy path: clone this repo in AWS CloudShell, then
   `aws cloudformation package` and `aws cloudformation deploy`.
@@ -33,7 +33,7 @@ reproduced below are the real command results from that run.
 
 ## Step 1: Sign in and set the region
 
-Signed in to the AWS console as the account owner and set the
+I signed in to the AWS console and set the
 console region to US East (N. Virginia), us-east-1. Every command
 below ran in that region. CloudShell inherits the console region, so
 the CLI calls needed no region flags.
@@ -53,7 +53,7 @@ GitHub at the time.
 
 ## Step 3: Review the template
 
-Read through `template.yaml` before deploying. It defines five
+I read through `template.yaml` before deploying. It defines five
 resources: the transcripts bucket, the calls table with a NEW_IMAGE
 stream and on-demand billing, and three functions (ingest, analyze,
 query), each with its own scoped IAM policy. The events wire the
@@ -162,7 +162,7 @@ Stack outputs:
 
 ## Step 9: Upload the transcripts
 
-Uploaded all seven sample transcripts to the transcripts bucket
+I uploaded all seven sample transcripts to the transcripts bucket
 from CloudShell:
 
 ```bash
@@ -191,7 +191,7 @@ same handlers, same outcome, two environments.
 
 ## Step 11: Test the API
 
-Called the stats endpoint on the live API:
+I called the stats endpoint on the live API:
 
 ```
 GET https://pb6eii1y8k.execute-api.us-east-1.amazonaws.com/Prod/calls/stats
@@ -208,16 +208,16 @@ base URL also returned the analyzed records.
 
 ## Teardown
 
-The stack ran for the verification above and was then deleted on
-the same day, 23 November 2026, at the owner's direction, so that
+The stack ran for the verification above, and I deleted it the
+same day, 23 November 2026, so that
 nothing from this project keeps billing.
 
 The deletion steps, in order:
 
-1. Emptied the transcripts bucket (the seven sample files). The
+1. I emptied the transcripts bucket (the seven sample files). The
    bucket itself was a stack resource and was removed with the
    stack.
-2. Deleted the stack:
+2. I deleted the stack:
 
    ```bash
    aws cloudformation delete-stack --stack-name serverless-call-analytics
@@ -227,10 +227,10 @@ The deletion steps, in order:
    returned "Stack with id serverless-call-analytics does not
    exist", which is the confirmation that the stack, the table, the
    three functions, and the API are gone.
-3. Emptied and deleted the artifacts bucket from step 4,
-   serverless-call-analytics-artifacts-762103021017. That bucket was
-   created by hand and was never part of the stack, so it had to be
-   removed separately.
+3. I emptied and deleted the artifacts bucket from step 4,
+   serverless-call-analytics-artifacts-762103021017. I had created
+   that bucket by hand and it was never part of the stack, so I had
+   to remove it separately.
 
 Final checks in us-east-1 show no Lambda functions, no DynamoDB
 tables, and no REST APIs left from this project. The API URL

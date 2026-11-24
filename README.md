@@ -153,8 +153,8 @@ below proved that warning right, twice.
 
 ### Live deployment
 
-On 23 November 2026 this project was deployed to a real AWS account
-and run end to end. Region us-east-1, stack
+On 23 November 2026 I deployed this project to a real AWS account
+and ran it end to end. Region us-east-1, stack
 serverless-call-analytics, status CREATE_COMPLETE, deployed from a
 CloudShell clone of this repo with `aws cloudformation package` and
 `aws cloudformation deploy`. The full step-by-step record, including
@@ -169,7 +169,7 @@ Stack outputs:
 | TableName | serverless-call-analytics-calls |
 | ApiUrl | https://pb6eii1y8k.execute-api.us-east-1.amazonaws.com/Prod |
 
-All seven sample transcripts were uploaded to the bucket. The S3
+I uploaded all seven sample transcripts to the bucket. The S3
 event triggered ingest and the DynamoDB stream triggered analyze,
 with no manual invocations. A scan of the table showed 7 items, all
 analyzed: billing 2, technical 2, access 1, outage 1, other 1;
@@ -188,10 +188,10 @@ GET https://pb6eii1y8k.execute-api.us-east-1.amazonaws.com/Prod/calls/stats
 ```
 
 `GET /calls` on the same base URL returned the analyzed records.
-The stack held only the fictional sample data. Later the same day,
-at the owner's direction, it was torn down to avoid ongoing
-charges: the transcripts bucket was emptied and removed with the
-stack, and the separate artifacts bucket was emptied and deleted.
+The stack held only the fictional sample data. Later the same day
+I tore it down to avoid ongoing charges: I emptied the transcripts
+bucket and removed it with the stack, and I emptied and deleted
+the separate artifacts bucket.
 The API endpoint above is no longer active. The outputs and the
 response reproduced here are the record of that run. To run it
 again, use the commands in the Deploying section below.
@@ -233,9 +233,9 @@ Honest limits:
 - **Deployed and verified live on 23 November 2026 in us-east-1,
   then torn down the same day.** The pipeline ran end to end on real
   AWS services with the seven fictional transcripts, and the API
-  answered at the URL in the Output section during that run. At the
-  owner's direction the stack was deleted the same day to avoid
-  ongoing charges, so nothing from this project is currently
+  answered at the URL in the Output section during that run. I
+  deleted the stack the same day to avoid ongoing charges, so
+  nothing from this project is currently
   running; the outputs recorded in the Output section are the
   evidence of the run. The deployment also exposed two defects in
   the template as first published: a DynamoDB stream event property the SAM
